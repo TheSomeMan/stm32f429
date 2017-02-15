@@ -27,6 +27,7 @@ FIL fil;
 
 int main(void) {
 	/* Free and total space */
+    FRESULT res;
 	uint32_t total, free;
 	
 	/* Initialize system */
@@ -44,13 +45,14 @@ int main(void) {
 		TM_DISCO_LedOn(LED_RED);
 		
 		/* Try to open file */
-		if (f_open(&fil, "0:1stfile.txt", FA_CREATE_ALWAYS | FA_READ | FA_WRITE) == FR_OK) {
+        res = f_open(&fil, "2nd_file.txt", FA_CREATE_ALWAYS | FA_WRITE);
+		if (res == FR_OK) {
 			/* File opened, turn off RED and turn on GREEN led */
 			TM_DISCO_LedOn(LED_GREEN);
 			TM_DISCO_LedOff(LED_RED);
 			
 			/* If we put more than 0 characters (everything OK) */
-			if (f_puts("First string in my file\n", &fil) > 0) {
+			if (f_puts("Seconds string in my file\n", &fil) > 0) {
 				if (TM_FATFS_DriveSize(&total, &free) == FR_OK) {
 					/* Data for drive size are valid */
 				}

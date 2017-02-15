@@ -82,11 +82,13 @@ static int wait_ready (	/* 1:Ready, 0:Timeout */
 	BYTE d;
 
 	/* Set down counter */
-	TM_DELAY_SetTime2(wt);
+	//TM_DELAY_SetTime2(wt);
+    uint32_t t0 = TM_Time;
 	
 	do {
 		d = TM_SPI_Send(FATFS_SPI, 0xFF);
-	} while (d != 0xFF && TM_DELAY_Time2());	/* Wait for card goes ready or timeout */
+	//} while (d != 0xFF && TM_DELAY_Time2());	/* Wait for card goes ready or timeout */
+	} while (d != 0xFF && ((TM_Time - t0) < wt));	/* Wait for card goes ready or timeout */
 	if (d == 0xFF) {
 		FATFS_DEBUG_SEND_USART("wait_ready: OK");
 	} else {
@@ -143,11 +145,12 @@ static int rcvr_datablock (	/* 1:OK, 0:Error */
 	
 	//Timer1 = 200;
 	
-	TM_DELAY_SetTime2(200);
+	//TM_DELAY_SetTime2(200);
+    uint32_t t0 = TM_Time;
 	do {							// Wait for DataStart token in timeout of 200ms 
 		token = TM_SPI_Send(FATFS_SPI, 0xFF);
 		// This loop will take a time. Insert rot_rdq() here for multitask envilonment. 
-	} while ((token == 0xFF) && TM_DELAY_Time2());
+	} while ((token == 0xFF) && ((TM_Time - t0) < 200));
 	if (token != 0xFE) {
 		FATFS_DEBUG_SEND_USART("rcvr_datablock: token != 0xFE");
 		return 0;		// Function fails if invalid DataStart token or timeout 
@@ -287,14 +290,17 @@ DSTATUS TM_FATFS_SD_disk_initialize (void) {
 	}
 	ty = 0;
 	if (send_cmd(CMD0, 0) == 1) {				/* Put the card SPI/Idle state */
-		TM_DELAY_SetTime2(1000);				/* Initialization timeout = 1 sec */
+		//TM_DELAY_SetTime2(1000);				/* Initialization timeout = 1 sec */
+        uint32_t t0 = TM_Time;
 		if (send_cmd(CMD8, 0x1AA) == 1) {	/* SDv2? */
 			for (n = 0; n < 4; n++) {
 				ocr[n] = TM_SPI_Send(FATFS_SPI, 0xFF);	/* Get 32 bit return value of R7 resp */
 			}
 			if (ocr[2] == 0x01 && ocr[3] == 0xAA) {				/* Is the card supports vcc of 2.7-3.6V? */
-				while (TM_DELAY_Time2() && send_cmd(ACMD41, 1UL << 30)) ;	/* Wait for end of initialization with ACMD41(HCS) */
-				if (TM_DELAY_Time2() && send_cmd(CMD58, 0) == 0) {		/* Check CCS bit in the OCR */
+				//while (TM_DELAY_Time2() && send_cmd(ACMD41, 1UL << 30)) ;	/* Wait for end of initialization with ACMD41(HCS) */
+				while (((TM_Time - t0) < 1000) && send_cmd(ACMD41, 1UL << 30)) ;	/* Wait for end of initialization with ACMD41(HCS) */
+				//if (TM_DELAY_Time2() && send_cmd(CMD58, 0) == 0) {		/* Check CCS bit in the OCR */
+				if (((TM_Time - t0) < 1000) && send_cmd(CMD58, 0) == 0) {		/* Check CCS bit in the OCR */
 					for (n = 0; n < 4; n++) {
 						ocr[n] = TM_SPI_Send(FATFS_SPI, 0xFF);
 					}
@@ -307,7 +313,8 @@ DSTATUS TM_FATFS_SD_disk_initialize (void) {
 			} else {
 				ty = CT_MMC; cmd = CMD1;	/* MMCv3 (CMD1(0)) */
 			}
-			while (TM_DELAY_Time2() && send_cmd(cmd, 0));			/* Wait for end of initialization */
+			//while (TM_DELAY_Time2() && send_cmd(cmd, 0));			/* Wait for end of initialization */
+			while (((TM_Time - t0) < 1000) && send_cmd(cmd, 0));			/* Wait for end of initialization */
 			if (TM_DELAY_Time2() || send_cmd(CMD16, 512) != 0) {	/* Set block length: 512 */
 				ty = 0;
 			}

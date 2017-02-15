@@ -30,4 +30,25 @@
 
 /* Put your global defines for all libraries here used in your project */
 
+#define FATFS_USE_SDIO                      0
+
+//Set your SPI, for corresponding pins look at TM SPI library
+#define FATFS_SPI               SPI3
+#define FATFS_SPI_PINSPACK      TM_SPI_PinsPack_2
+	
+//Set your CS pin for SPI			
+#define FATFS_CS_PORT           GPIOD
+#define FATFS_CS_PIN            GPIO_PIN_4
+
+//Enable Card detect pin
+//#define FATFS_USE_DETECT_PIN          1
+//Default CD pin			
+//#define FATFS_USE_DETECT_PIN_PORT          GPIOB
+//#define FATFS_USE_DETECT_PIN_PIN           GPIO_PIN_6
+
+
+#define FATFS_SDIO_4BIT						0
+#define SDIO_TRANSFER_CLK_DIV           ((uint8_t)0x76)
+
+
 #endif
