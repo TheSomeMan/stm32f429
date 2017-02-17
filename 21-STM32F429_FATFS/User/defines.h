@@ -33,8 +33,8 @@
 #define FATFS_USE_SDIO                      0
 
 //Set your SPI, for corresponding pins look at TM SPI library
-#define FATFS_SPI               SPI3
-#define FATFS_SPI_PINSPACK      TM_SPI_PinsPack_2
+#define FATFS_SPI               SPI4
+#define FATFS_SPI_PINSPACK      TM_SPI_PinsPack_1
 	
 //Set your CS pin for SPI			
 #define FATFS_CS_PORT           GPIOD
